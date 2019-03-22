@@ -13,7 +13,7 @@ FILE *myfopen(const char *filename,const char *atr){
     return 0;
   }
   
-  return f;
+  return (FILE*)f;
 }
 
 size_t myfread(void *ptr,size_t s,size_t nm,FILE *f){
@@ -30,14 +30,14 @@ int myfclose(FILE *f){
   return 0;
 }
 
-int myfseek(FIL *f,long ofs,int whence){
+int myfseek(FILE *f,long ofs,int whence){
   FRESULT r;
   if(whence == SEEK_SET){
-    r= f_lseek(f,ofs);
+    r= f_lseek((FIL*)f,ofs);
   }else if(whence == SEEK_CUR){
-    r= f_lseek(f,ofs+f_tell(f));
+    r= f_lseek((FIL*)f,ofs+f_tell((FIL*)f));
   }else if(whence == SEEK_END){
-    r= f_lseek(f,f_size(f));
+    r= f_lseek((FIL*)f,f_size((FIL*)f));
   }else{
     printf("error not implemented\n");
   }
@@ -45,15 +45,15 @@ int myfseek(FIL *f,long ofs,int whence){
   return r;
 }
 
-long myftell(FIL *f){
-  return f_tell(f);
+long myftell(FILE *f){
+  return f_tell((FIL*)f);
 }
 
-int mygetc(FIL *f){
+int mygetc(FILE *f){
   char c;
   int n;
   FRESULT r;
-  r = f_read(f,&c,1,&n);
+  r = f_read((FIL*)f,&c,1,&n);
   if(r==0&&n==1) return c;
   return EOF;
 }
