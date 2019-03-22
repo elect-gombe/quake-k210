@@ -702,9 +702,9 @@ R_AliasDrawModel
 */
 void R_AliasDrawModel (alight_t *plighting)
 {
-	finalvert_t		finalverts[MAXALIASVERTS +
-						((CACHE_SIZE - 1) / sizeof(finalvert_t)) + 1];
-	auxvert_t		auxverts[MAXALIASVERTS];
+       finalvert_t             finalverts[MAXALIASVERTS +
+                                               ((CACHE_SIZE - 1) / sizeof(finalvert_t)) + 1];
+       auxvert_t               auxverts[MAXALIASVERTS];
 
 	r_amodels_drawn++;
 

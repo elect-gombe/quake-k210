@@ -22,25 +22,21 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 #include "errno.h"
 
-#include <3ds.h>
-#include <dirent.h>
-#include "ctr.h"
-#include "touch_ctr.h"
+#include <stdint.h>
 
 int __stacksize__ = 256 * 1024;
 
-u8 isN3DS;
 
 #define TICKS_PER_SEC 268123480.0
 
 qboolean		isDedicated;
 
-u64 initialTime = 0;
+uint64_t initialTime = 0;
 int hostInitialized = 0;
 
 char gameFolder[100];
 
-static aptHookCookie sysAptCookie;
+//static aptHookCookie sysAptCookie;
 
 /*
 ===============================================================================
@@ -178,19 +174,13 @@ void Sys_Error (char *error, ...)
 	vprintf (error,argptr);
 	va_end (argptr);
 	printf ("\n");
-	printf("Press START to exit");
 	while(1){
-		hidScanInput();
-		u32 kDown = hidKeysDown();
-		if (kDown & KEY_START)
-			break;
 	}
 	if(hostInitialized)
 		Sys_Quit();
 
 	else
 	{
-		gfxExit();
 		exit (0);
 	}
 }
@@ -209,19 +199,27 @@ void Sys_Printf (char *fmt, ...)
 
 void Sys_Quit (void)
 {
-	aptUnhook(&sysAptCookie);
-	Host_Shutdown();
-	gfxExit();
 	exit (0);
 }
+
+#include <sys/time.h>
+#if defined(PC)
+uint64_t get_time(void){
+  struct timeval currentTime;
+  gettimeofday(&currentTime, NULL);
+  return currentTime.tv_sec * (int)1e6 + currentTime.tv_usec;
+}
+
+#endif
+uint64_t get_time(void);
 
 double Sys_FloatTime (void)
 {
 	if(!initialTime){
-		initialTime = svcGetSystemTick();
+		initialTime = get_time();
 	}
-	u64 curTime = svcGetSystemTick();
-	return (curTime - initialTime)/TICKS_PER_SEC;
+	uint64_t curTime = get_time();
+	return (curTime - initialTime)/1000000.;
 }
 
 char *Sys_ConsoleInput (void)
@@ -233,52 +231,53 @@ void Sys_Sleep (void)
 {
 }
 
-void CTR_SetKeys(u32 keys, u32 state){
-	if( keys & KEY_SELECT)
-		Key_Event(K_ESCAPE, state);
-	if( keys & KEY_START)
-		Key_Event(K_ENTER, state);
-	if( keys & KEY_DUP)
-		Key_Event(K_UPARROW, state);
-	if( keys & KEY_DDOWN)
-		Key_Event(K_DOWNARROW, state);
-	if( keys & KEY_DLEFT)
-		Key_Event(K_LEFTARROW, state);
-	if( keys & KEY_DRIGHT)
-		Key_Event(K_RIGHTARROW, state);
-	if( keys & KEY_Y)
-		Key_Event(K_AUX4, state);
-	if( keys & KEY_X)
-		Key_Event(K_AUX3, state);
-	if( keys & KEY_B)
-		Key_Event(K_AUX2, state);
-	if( keys & KEY_A)
-		Key_Event(K_AUX1, state);
-	if( keys & KEY_L)
-		Key_Event(K_AUX5, state);
-	if( keys & KEY_R)
-		Key_Event(K_AUX7, state);
-	if( keys & KEY_ZL)
-		Key_Event(K_AUX6, state);
-	if( keys & KEY_ZR)
-		Key_Event(K_AUX8, state);
+void CTR_SetKeys(uint32_t keys, uint32_t state){
+  //todo
+	/* if( keys & KEY_SELECT) */
+	/* 	Key_Event(K_ESCAPE, state); */
+	/* if( keys & KEY_START) */
+	/* 	Key_Event(K_ENTER, state); */
+	/* if( keys & KEY_DUP) */
+	/* 	Key_Event(K_UPARROW, state); */
+	/* if( keys & KEY_DDOWN) */
+	/* 	Key_Event(K_DOWNARROW, state); */
+	/* if( keys & KEY_DLEFT) */
+	/* 	Key_Event(K_LEFTARROW, state); */
+	/* if( keys & KEY_DRIGHT) */
+	/* 	Key_Event(K_RIGHTARROW, state); */
+	/* if( keys & KEY_Y) */
+	/* 	Key_Event(K_AUX4, state); */
+	/* if( keys & KEY_X) */
+	/* 	Key_Event(K_AUX3, state); */
+	/* if( keys & KEY_B) */
+	/* 	Key_Event(K_AUX2, state); */
+	/* if( keys & KEY_A) */
+	/* 	Key_Event(K_AUX1, state); */
+	/* if( keys & KEY_L) */
+	/* 	Key_Event(K_AUX5, state); */
+	/* if( keys & KEY_R) */
+	/* 	Key_Event(K_AUX7, state); */
+	/* if( keys & KEY_ZL) */
+	/* 	Key_Event(K_AUX6, state); */
+	/* if( keys & KEY_ZR) */
+	/* 	Key_Event(K_AUX8, state); */
 }
 
 
 void Sys_SendKeyEvents (void)
 {
-	hidScanInput();
+	/* hidScanInput(); */
 	
-	u32 kDown = hidKeysDown();
+	/* u32 kDown = hidKeysDown(); */
 
-	u32 kUp = hidKeysUp();
+	/* u32 kUp = hidKeysUp(); */
 
-	if(kDown)
-		CTR_SetKeys(kDown, true);
-	if(kUp)
-		CTR_SetKeys(kUp, false);
+	/* if(kDown) */
+	/* 	CTR_SetKeys(kDown, true); */
+	/* if(kUp) */
+	/* 	CTR_SetKeys(kUp, false); */
 
-	Touch_Update();
+	/* Touch_Update(); */
 }
 
 void Sys_HighFPPrecision (void)
@@ -291,18 +290,6 @@ void Sys_LowFPPrecision (void)
 
 //=============================================================================
 
-//Used to properly exit the game when closing it from the home menu
-static void sysAptHook(APT_HookType hook, void* param)
-{
-	switch (hook)
-	{
-		case APTHOOK_ONEXIT:
-			Sys_Quit();
-			break;
-		default:
-			break;
-	}
-}
 
 void Sys_DefaultConfig(void)
 {
@@ -322,53 +309,40 @@ void Sys_DefaultConfig(void)
 
 void Sys_Init(void)
 {
-	hostInitialized = true;
-	aptHook(&sysAptCookie, sysAptHook, NULL);
-	Touch_Init();
-	Touch_DrawOverlay();
 }
 
+#if !defined(PC)
+int quake_main (int argc, char **argv)
+#else
 int main (int argc, char **argv)
+#endif
 {
 	float		time, oldtime;
 
-	APT_CheckNew3DS(&isN3DS);
-	if(isN3DS)
-		osSetSpeedupEnable(true);
-
-	gfxInit(GSP_RGB565_OES,GSP_RGB565_OES,false);
-	gfxSetDoubleBuffering(GFX_TOP, false);
-	gfxSetDoubleBuffering(GFX_BOTTOM, false);
-	gfxSet3D(true);
-	consoleInit(GFX_BOTTOM, NULL);
-
-	#ifdef _3DS_CIA
-		if(chdir("sdmc:/3ds/ctrQuake") != 0)
-			Sys_Error("Could not find folder: sdmc:/3ds/ctrQuake");
-	#endif
-
 	static quakeparms_t    parms;
 
-	parms.memsize = 24*1024*1024;
-	parms.membase = malloc (parms.memsize);
+	printf("quake will begin\n");
+
+	parms.memsize = 5.5*1024*1024;/*at minimum requirement, thus this is needed ai ram memory :( */
+	parms.membase = calloc (1,parms.memsize);
+	if(parms.membase==NULL)printf("allocation failed\n");
 	parms.basedir = ".";
+	printf("allocated\n");
 
 	COM_InitArgv (argc, argv);
 
 	parms.argc = com_argc;
 	parms.argv = com_argv;
 	Host_Init (&parms);
-	
+	printf("host init end\n");
 	Sys_Init();
 
 	oldtime = Sys_FloatTime() -0.1;
-	while (aptMainLoop())
+	while (1)
 	{
 		time = Sys_FloatTime();
-		separation_distance = osGet3DSliderState();
 		Host_Frame (time - oldtime);
 		oldtime = time;
 	}
-	gfxExit();
 	return 0;
 }

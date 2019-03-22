@@ -21,7 +21,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #ifndef  __CTR__
 #define __CTR__
 
-extern u8 isN3DS;
+//extern u8 isN3DS;
 
 void ctrDrawTouchOverlay();
 

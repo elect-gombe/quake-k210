@@ -20,7 +20,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // net_dgrm.c
 
 // This is enables a simple IP banning mechanism
-#define BAN_TEST
+//#define BAN_TEST
 
 #ifdef BAN_TEST
 #if defined(_WIN32)
@@ -769,6 +769,7 @@ JustDoIt:
 
 int Datagram_Init (void)
 {
+  return -1;
 	int i;
 	int csock;
 

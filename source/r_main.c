@@ -73,6 +73,7 @@ float		xscaleinv, yscaleinv;
 float		xscaleshrink, yscaleshrink;
 float		aliasxscale, aliasyscale, aliasxcenter, aliasycenter;
 
+extern
 int		screenwidth;
 
 float	pixelAspect;

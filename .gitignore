@@ -41,3 +41,22 @@ $RECYCLE.BIN/
 Network Trash Folder
 Temporary Items
 .apdisk
+
+
+*~
+*.o
+GPATH
+GRTAGS
+GTAGS
+a.out
+*.exe
+*.bat
+*.dll
+*.com
+opengl32.old
+id1
+*.vxd
+source/docs
+*.pif
+*.dat
+*.wad

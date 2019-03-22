@@ -20,7 +20,6 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 // common.c -- misc functions used in client and server
 
 #include "quakedef.h"
-#include <3ds.h>
 
 #define NUM_SAFE_ARGVS  7
 
@@ -1277,6 +1276,7 @@ byte *COM_LoadFile (char *path, int usehunk)
 	Sys_FileRead (h, buf, len);
 	COM_CloseFile (h);
 	Draw_EndDisc ();
+	printf("%p\n",buf);
 	return buf;
 }
 

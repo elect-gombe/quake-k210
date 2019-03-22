@@ -264,7 +264,7 @@ void Cmd_StuffCmds_f (void)
 	Z_Free (build);
 }
 
-
+byte *COM_LoadFile (char *path, int usehunk);
 /*
 ===============
 Cmd_Exec_f
@@ -283,6 +283,7 @@ void Cmd_Exec_f (void)
 
 	mark = Hunk_LowMark ();
 	f = (char *)COM_LoadFile (Cmd_Argv(1),0);
+	printf("%p\n",f);
 	if (!f)
 	{
 		Con_Printf ("couldn't exec %s\n",Cmd_Argv(1));

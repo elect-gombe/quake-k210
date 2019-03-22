@@ -45,7 +45,7 @@ typedef struct
 void Cache_FreeLow (int new_low_hunk);
 void Cache_FreeHigh (int new_high_hunk);
 
-
+#define printf(...) 
 /*
 ==============================================================================
 
@@ -575,6 +575,7 @@ void Cache_Move ( cache_system_t *c)
 {
 	cache_system_t		*new;
 
+	printf("in ==move== head, next->%p, prev->%p\n",cache_head.next,cache_head.prev);
 // we are clearing up space at the bottom, so only allocate it late
 	new = Cache_TryAlloc (c->size, true);
 	if (new)
@@ -593,6 +594,8 @@ void Cache_Move ( cache_system_t *c)
 
 		Cache_Free (c->user);		// tough luck...
 	}
+
+	printf("next->%p, prev->%p\n",cache_head.next,cache_head.prev);
 }
 
 /*
@@ -629,9 +632,11 @@ void Cache_FreeHigh (int new_high_hunk)
 	cache_system_t	*c, *prev;
 
 	prev = NULL;
+	printf("cache free high next->%p, prev->%p\n",cache_head.next,cache_head.prev);
 	while (1)
 	{
 		c = cache_head.prev;
+		printf("c=%p\n",c);
 		if (c == &cache_head)
 			return;		// nothing in cache at all
 		if ( (byte *)c + c->size <= hunk_base + hunk_size - new_high_hunk)
@@ -644,6 +649,7 @@ void Cache_FreeHigh (int new_high_hunk)
 			prev = c;
 		}
 	}
+
 }
 
 void Cache_UnlinkLRU (cache_system_t *cs)
@@ -655,6 +661,8 @@ void Cache_UnlinkLRU (cache_system_t *cs)
 	cs->lru_prev->lru_next = cs->lru_next;
 
 	cs->lru_prev = cs->lru_next = NULL;
+
+	printf("next->%p, prev->%p\n",cache_head.next,cache_head.prev);
 }
 
 void Cache_MakeLRU (cache_system_t *cs)
@@ -666,7 +674,8 @@ void Cache_MakeLRU (cache_system_t *cs)
 	cs->lru_next = cache_head.lru_next;
 	cs->lru_prev = &cache_head;
 	cache_head.lru_next = cs;
-}
+
+	printf("next->%p, prev->%p\n",cache_head.next,cache_head.prev);}
 
 /*
 ============
@@ -682,6 +691,7 @@ cache_system_t *Cache_TryAlloc (int size, qboolean nobottom)
 
 // is the cache completely empty?
 
+	printf("try alloc %d byte,next->%p, prev->%p\n",size,cache_head.next,cache_head.prev);
 	if (!nobottom && cache_head.prev == &cache_head)
 	{
 		if (hunk_size - hunk_high_used - hunk_low_used < size)
@@ -835,6 +845,7 @@ void Cache_Free (cache_user_t *c)
 
 	c->data = NULL;
 
+	printf("next->%p, prev->%p\n",cache_head.next,cache_head.prev);
 	Cache_UnlinkLRU (cs);
 }
 
@@ -878,6 +889,8 @@ void *Cache_Alloc (cache_user_t *c, int size, char *name)
 		Sys_Error ("Cache_Alloc: size %i", size);
 
 	size = (size + sizeof(cache_system_t) + 15) & ~15;
+
+	printf("next->%p, prev->%p\n",cache_head.next,cache_head.prev);
 
 // find memory for it
 	while (1)

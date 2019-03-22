@@ -145,6 +145,7 @@ CL_EstablishConnection
 Host should be either "local" or a net address to be passed on
 =====================
 */
+void CL_KeepaliveMessage (void);
 void CL_EstablishConnection (char *host)
 {
 	if (cls.state == ca_dedicated)

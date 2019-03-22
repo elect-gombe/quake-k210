@@ -64,6 +64,7 @@ int net_numdrivers = 2;
 
 net_landriver_t	net_landrivers[MAX_NET_DRIVERS] =
 {
+  /*
 	{
 	"UDP",
 	false,
@@ -86,7 +87,7 @@ net_landriver_t	net_landrivers[MAX_NET_DRIVERS] =
 	UDP_AddrCompare,
 	UDP_GetSocketPort,
 	UDP_SetSocketPort
-	}
+	}*/
 };
 
 int net_numlandrivers = 1;

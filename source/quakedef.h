@@ -40,6 +40,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 #include <math.h>
 #include <string.h>
+#include <stdint.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -333,3 +334,12 @@ extern	cvar_t	chase_active;
 void Chase_Init (void);
 void Chase_Reset (void);
 void Chase_Update (void);
+
+#if !defined(PC)
+#define fopen myfopen
+#define fclose myfclose
+#define fread myfread
+#define ftell myftell
+#define fseek myfseek
+#define getc mygetc
+#endif

@@ -636,15 +636,20 @@ void _Host_Frame (float time)
 	static double		time3 = 0;
 	int			pass1, pass2, pass3;
 
-	if (setjmp (host_abortserver) )
+	if (setjmp (host_abortserver) ){
+	  printf("something wrong?\n");
 		return;			// something bad happened, or the server disconnected
+	}
 
 // keep the random time dependent
-	rand ();
+//	rand ();
 
 // decide the simulation time
-	if (!Host_FilterTime (time))
-		return;			// don't run too fast, or packets will flood out
+	static int hogec;
+	if (!Host_FilterTime (time)){
+	  //	  printf("too fast\n");
+	  return;			// don't run too fast, or packets will flood out
+	}
 
 // get new key events
 	Sys_SendKeyEvents ();
@@ -835,7 +840,7 @@ Host_Init
 */
 void Host_Init (quakeparms_t *parms)
 {
-
+  
 	if (standard_quake)
 		minimum_memory = MINIMUM_MEMORY;
 	else
@@ -912,6 +917,7 @@ void Host_Init (quakeparms_t *parms)
 
 	Cbuf_InsertText ("exec quake.rc\n");
 
+	
 	Hunk_AllocName (0, "-HOST_HUNKLEVEL-");
 	host_hunklevel = Hunk_LowMark ();
 

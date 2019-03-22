@@ -166,6 +166,7 @@ S_Init
 */
 void S_Init (void)
 {
+  return;
 
 	Con_Printf("\nSound Initialization\n");
 
