@@ -35,7 +35,7 @@ short	*zbuffer;
 float separation_distance;
 
 uint16_t	d_8to16table[256];
-uint32_t surfcache[1024*64];
+uint32_t surfcache[1024*128];
 
 void	VID_SetPalette (unsigned char *palette)
 {

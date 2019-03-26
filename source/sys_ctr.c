@@ -23,6 +23,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "errno.h"
 
 #include <stdint.h>
+#include "dualshock2.h"
 
 int __stacksize__ = 256 * 1024;
 
@@ -293,22 +294,73 @@ void Sys_LowFPPrecision (void)
 
 void Sys_DefaultConfig(void)
 {
-	Cbuf_AddText ("bind ABUTTON +right\n");
-	Cbuf_AddText ("bind BBUTTON +lookdown\n");
-	Cbuf_AddText ("bind XBUTTON +lookup\n");
-	Cbuf_AddText ("bind YBUTTON +left\n");
-	Cbuf_AddText ("bind LTRIGGER +jump\n");
-	Cbuf_AddText ("bind RTRIGGER +attack\n");
-	Cbuf_AddText ("bind PADUP \"impulse 10\"\n");
-	Cbuf_AddText ("bind PADDOWN \"impulse 12\"\n");
+	Cbuf_AddText ("bind L1 +jump\n");
+	Cbuf_AddText ("bind L2 +attack\n");
+	Cbuf_AddText ("bind R1 \"impulse 10\"\n");
+	Cbuf_AddText ("bind R2 \"impulse 12\"\n");
 	Cbuf_AddText ("lookstrafe \"1.000000\"\n");
 	Cbuf_AddText ("lookspring \"0.000000\"\n");
 	Cbuf_AddText ("gamma \"0.700000\"\n");
-
 }
 
 void Sys_Init(void)
 {
+}
+
+static
+uint32_t pkey;
+
+static uint8_t keymap[]={
+  K_ESCAPE,/*SELECT*/
+  K_AUX9,/*L3(Left stick button)*/
+  K_AUX10,/*R3*/
+  K_ENTER,/*start*/
+  K_UPARROW,/*Arrow key (same x4)*/
+  K_RIGHTARROW,
+  K_DOWNARROW,
+  K_LEFTARROW,
+  K_AUX7,/*L2*/
+  K_AUX8,/*R2*/
+  K_AUX5,/*L1*/
+  K_AUX6,/*R1*/
+  K_AUX3,/*triangle*/
+  K_AUX1,/*O*/
+  K_AUX2,/*X*/
+  K_AUX4,/*Square*/
+};
+
+const char *ks[]={
+  "pressed",
+  "released",
+};
+
+void keytask(void){
+  uint32_t b;
+  PS2X_read_gamepad(0,0);
+  b=buttons;
+  uint32_t t;
+  t=b;
+
+  /*do analog tasks*/
+  if(pkey == b){/*nothing to do?*/
+  }else{
+    uint32_t d;
+    int n=0;
+    d = b^pkey;
+    while(d){
+      if(d&1){ /*has been this key status changed?*/
+	if(keymap[n]){
+	  //	  printf("%d>%d %s\n",n,keymap[n],ks[1-(b&1)]);
+	  Key_Event(keymap[n],!(b&1));
+	}
+      }
+      d>>=1;
+      b>>=1;
+      n++;
+    }
+  }
+  
+  pkey = t;
 }
 
 #if !defined(PC)
@@ -323,7 +375,7 @@ int main (int argc, char **argv)
 
 	printf("quake will begin\n");
 
-	parms.memsize = 5.5*1024*1024;/*at minimum requirement, thus this is needed ai ram memory :( */
+	parms.memsize = 5.5*1024*1024;/*at minimum requirements, thus this is needed ai ram memory :( */
 	parms.membase = calloc (1,parms.memsize);
 	if(parms.membase==NULL)printf("allocation failed\n");
 	parms.basedir = ".";
@@ -343,6 +395,7 @@ int main (int argc, char **argv)
 		time = Sys_FloatTime();
 		Host_Frame (time - oldtime);
 		oldtime = time;
+		keytask();
 	}
 	return 0;
 }

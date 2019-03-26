@@ -25,6 +25,7 @@
 #include "gpiohs.h"
 #include "sdcard.h"
 #include "ff.h"
+#include "dualshock2.h"
 
 //uint32_t g_lcd_gram[LCD_X_MAX * LCD_Y_MAX / 2] __attribute__((aligned(128)));
 
@@ -40,7 +41,7 @@ static void io_set_power(void)
 
 // overclock and voltageboost suported XD
 //use  to configure core voltage.
-#define CORE_VOLTAGE_GPIONUM (5)
+#define CORE_VOLTAGE_GPIONUM (6)
 int set_cpu_freq(uint32_t f){//MHz
   if(f<600){
     gpiohs_set_drive_mode(CORE_VOLTAGE_GPIONUM, GPIO_DM_INPUT);
@@ -69,6 +70,11 @@ static void io_mux_init(void)
     fpioa_set_function(39, FUNC_SPI0_SCLK);
     fpioa_set_function(37, FUNC_GPIOHS0 + RST_GPIONUM);
     sysctl_set_spi0_dvp_data(1);
+
+    fpioa_set_function(18, FUNC_GPIOHS0 + DS2_CS);   //Dualshock2 ss
+    fpioa_set_function(19, FUNC_GPIOHS0 + DS2_CLK); //clk
+    fpioa_set_function(21, FUNC_GPIOHS0 + DS2_MOSI); //mosi--DO/CMD
+    fpioa_set_function(20, FUNC_GPIOHS0 + DS2_MISO); //miso--DI/DAT
 #else
 #error todo
     fpioa_set_function(8, FUNC_GPIOHS0 + DCX_GPIONUM);
@@ -84,13 +90,6 @@ uint64_t get_time(void)
     return v_cycle * 1000000 / sysctl_clock_get_freq(SYSCTL_CLOCK_CPU);
 }
 
-int core1_function(void *ctx)
-{
-    uint64_t core = current_coreid();
-    printf("Core %ld Hello world\n", core);
-    while(1);
-}
-
 void quake_main(int argc,char **argv);
 
 extern char _heap_end[];
@@ -99,12 +98,16 @@ extern char _tp0[];
 extern char _sp1[];
 extern char _sp0[];
 
-
+void ds2readcore(void){// dualshock 2 controller handler
+  //reading only XD
+  printf("read task begin\n");
+  while(1){
+  }
+}
 
 int main(void)
 {  
 #define PLL1_OUTPUT_FREQ 400000000UL
-
   /* sysctl_pll_set_freq(SYSCTL_PLL0, PLL0_OUTPUT_FREQ); */
   sysctl_pll_set_freq(SYSCTL_PLL1, PLL1_OUTPUT_FREQ);
   sysctl_clock_enable(SYSCTL_CLOCK_AI);
@@ -127,14 +130,10 @@ int main(void)
 #else
     lcd_set_direction(DIR_YX_RLUD);
 #endif
-    uint64_t core = current_coreid();
-    printf("Core %ld Hello world\n", core);
-    // make another thread\n
-#if PROCESSNUM==2
-    printf("core 1 registering...\n");
-    register_core1(core1_function, 0);
-    for(volatile int i=0;i<10000;i++);
-#endif
+
+    PS2X_confg_io(DS2_CS,DS2_CLK,DS2_MOSI,DS2_MISO);
+    PS2X_config_gamepad(0,0);
+    register_core1(ds2readcore, 0);
 
     /* SD card init */
     if (sd_init())

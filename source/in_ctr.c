@@ -24,6 +24,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 #include "quakedef.h"
 
 #include "ctr.h"
+#include "dualshock2.h"
 
 
 void IN_Init (void)
@@ -42,4 +43,31 @@ extern uint8_t keyboardToggled;
 
 void IN_Move (usercmd_t *cmd)
 {
+  {
+    float yaw,pitch;
+    yaw = PS2X_Analog(PSS_RX)-0x80;
+    pitch = PS2X_Analog(PSS_RY)-0x80;
+    if(fabs(yaw) < 25.f)yaw = 0.f;
+    if(fabs(pitch) < 25.f)pitch = 0.f;
+    yaw /= 128.f;
+    pitch /= 128.f;
+    yaw*=3;
+    pitch*=3;
+    cl.viewangles[YAW] -= yaw;
+    cl.viewangles[PITCH] += pitch;
+  }
+  {
+    float forward,side;
+    forward = PS2X_Analog(PSS_LY)-0x80;
+    side = PS2X_Analog(PSS_LX)-0x80;
+    if(fabs(forward) < 25.f)forward = 0.f;
+    if(fabs(side) < 25.f)side = 0.f;
+    forward /= -128.f;
+    side /= 128.f;
+    cmd->forwardmove  += forward*cl_forwardspeed.value*2;
+    cmd->sidemove += side*cl_forwardspeed.value*2;
+  }
+
+  if(!lookspring.value)
+    V_StopPitchDrift (); 
 }
