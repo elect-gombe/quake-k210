@@ -116,11 +116,15 @@ _start:
   la  tp, _end + 63
   and tp, tp, -64
   csrr a0, mhartid
+  beq a0,zero,_core0
 
-  add sp, a0, 1
-  sll sp, sp, STKSHIFT
-  add sp, sp, tp
-
+_core1:
+  la sp, _sp1
+  and sp, sp, -64
+  j _init_bsp
+_core0:
+  la sp, _sp0
+  and sp, sp, -64
   j _init_bsp
 
   .globl trap_entry
