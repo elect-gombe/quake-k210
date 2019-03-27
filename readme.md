@@ -21,7 +21,7 @@ This functions is fixed by code.
 visit `additionalparts/readme.md` to build this program.
 
 ## install
-1. copy id/pak?.pak to your SD. You can DL the package file in the official Quake shareware, or use full package file(s).
+1. copy id1/pak?.pak to your SD. You can DL the package file in the official Quake shareware, or use full package file(s).
 2. connect your dualshock2 to k210.
 See `source/k210.c`.
 ```c
